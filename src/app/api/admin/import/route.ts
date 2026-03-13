@@ -20,12 +20,14 @@ function redirectWithMessage(
 export async function POST(request: Request) {
   const session = await getAppSession();
 
+  const base = process.env.NEXTAUTH_URL!;
+
   if (!session?.user) {
-    return NextResponse.redirect(new URL("/login", request.url), 303);
+    return NextResponse.redirect(new URL("/login", base), 303);
   }
 
   if (!session.user.isAdmin) {
-    return redirectWithMessage(request.url, "forbidden", {});
+    return redirectWithMessage(base, "forbidden", {});
   }
 
   try {
