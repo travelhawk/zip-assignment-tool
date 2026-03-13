@@ -39,14 +39,14 @@ export async function POST(request: Request) {
     const file = formData.get("file");
 
     if (!(file instanceof File) || file.size === 0) {
-      return redirectWithMessage(request.url, "error", {
+      return redirectWithMessage(base, "error", {
         error: "Bitte zuerst eine Excel-Datei auswählen.",
       });
     }
 
     const result = await replaceAssignmentsFromWorkbook(file, importedBy);
 
-    return redirectWithMessage(request.url, "success", {
+    return redirectWithMessage(base, "success", {
       count: String(result.insertedCount),
       deduped: String(result.deduplicatedCount),
       sheet: result.worksheetName,
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     const message =
       error instanceof Error ? error.message : "Der Import ist unerwartet fehlgeschlagen.";
 
-    return redirectWithMessage(request.url, "error", {
+    return redirectWithMessage(base, "error", {
       error: message,
     });
   }
