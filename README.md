@@ -97,6 +97,8 @@ JetBrains project run configurations are included in `.run/` for:
 - Number input is treated as PLZ
 - Exact PLZ matches are preferred before prefix matches
 - Text input searches localities
+- Live search updates in place after a short debounce instead of reloading the page on every keypress
+- The current query stays in the `q` URL parameter for bookmarking and sharing
 - The current data set always comes from the latest successful import
 
 Example searches:
@@ -155,6 +157,8 @@ The Electron app:
   the account is authenticated, but no configured admin role value was found
 - No search results after setup:
   import an Excel file first
+- Search suddenly redirects to login:
+  the authenticated session expired and the search API now requires a fresh login
 - PM2 restart does not pick up new settings:
   rebuild if required and use `npm run pm2:restart` so PM2 refreshes the process
   environment

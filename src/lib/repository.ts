@@ -8,6 +8,7 @@ import {
   normalizeLocalityStrict,
   sanitizePostalCode,
 } from "@/lib/normalization";
+import type { SearchMode, SearchResponse, SearchResult } from "@/lib/search-types";
 
 type SearchRow = {
   postalCode: string;
@@ -26,21 +27,6 @@ type ImportHistoryRow = {
   recordCount: number;
   importedBy: string;
   importedAt: string;
-};
-
-export type SearchMode = "postal-exact" | "postal-prefix" | "city";
-
-export type SearchResult = {
-  postalCode: string;
-  assigneeName: string;
-  localities: string[];
-  adminAreas: string[];
-  secondaryAreas: string[];
-};
-
-export type SearchResponse = {
-  mode: SearchMode;
-  results: SearchResult[];
 };
 
 export type DashboardOverview = {

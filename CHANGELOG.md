@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.5 - 2026-03-14
+
+- Moved live search to an authenticated `/api/search` endpoint with in-place client updates.
+- Kept the `q` URL parameter in sync via the native History API instead of route transitions on each keystroke.
+- Added URL helper tests for live-search query normalization and URL updates.
+
 ## 0.1.4 - 2026-03-14
 
 - Replaced the settings icon with a more standard symmetric gear.
