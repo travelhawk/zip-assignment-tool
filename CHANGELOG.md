@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.10 - 2026-03-15
+
+- Removed the Electron window menu bar.
+- Added an Electron-only Microsoft SSO handoff that opens the system browser and returns to the desktop app through a custom protocol callback.
+- Kept the normal embedded web login path available as a fallback without changing the browser app flow.
+
 ## 0.1.9 - 2026-03-14
 
 - Enter loading state immediately when typing so the search panel no longer flashes through the transient empty-results surface during the debounce window.

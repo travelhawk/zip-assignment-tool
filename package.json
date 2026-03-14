@@ -1,6 +1,6 @@
 {
   "name": "plz-minitool",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "private": true,
   "main": "electron/main.js",
   "scripts": {
@@ -46,6 +46,14 @@
     "files": [
       "electron/**/*",
       "package.json"
+    ],
+    "protocols": [
+      {
+        "name": "PLZ-Zuordnung Login",
+        "schemes": [
+          "plz-zuordnung"
+        ]
+      }
     ],
     "win": {
       "target": [

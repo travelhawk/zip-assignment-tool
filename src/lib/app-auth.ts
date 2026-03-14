@@ -1,11 +1,15 @@
 import "server-only";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import {
   isValidBasicCredentials,
   parseBasicAuthorizationHeader,
 } from "@/lib/basic-auth";
+import {
+  ELECTRON_SESSION_COOKIE,
+  readElectronSessionToken,
+} from "@/lib/electron-auth";
 import { authRuntime } from "@/lib/env";
 
 export type AppSession = {
@@ -39,6 +43,18 @@ export async function getAppSession() {
         name: authRuntime.basicAuth.displayName,
         authMethod: "basic",
       },
+    } satisfies AppSession;
+  }
+
+  const cookieStore = await cookies();
+  const electronSession = readElectronSessionToken(
+    cookieStore.get(ELECTRON_SESSION_COOKIE)?.value,
+    authRuntime.authSecret,
+  );
+
+  if (electronSession) {
+    return {
+      user: electronSession,
     } satisfies AppSession;
   }
 

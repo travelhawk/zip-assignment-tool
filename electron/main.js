@@ -14,8 +14,11 @@ const MODIFIER_ORDER = ["Ctrl", "Alt", "Shift", "Meta"];
 const SINGLE_CHARACTER_KEY_PATTERN = /^[A-Z0-9]$/;
 const FUNCTION_KEY_PATTERN = /^F(?:[1-9]|1\d|2[0-4])$/;
 const APP_NAME = "PLZ-Zuordnung";
+const ELECTRON_PROTOCOL = "plz-zuordnung";
+const gotTheLock = app.requestSingleInstanceLock();
 let mainWindow = null;
 let currentGlobalShortcut = DEFAULT_GLOBAL_SHORTCUT;
+let pendingDeepLink = process.platform === "win32" ? extractProtocolUrl(process.argv) : null;
 
 function formatDisplayName(companyName) {
   return companyName ? `${APP_NAME} - ${companyName}` : APP_NAME;
@@ -57,6 +60,36 @@ function getRuntimeConfig() {
 
 function getHotkeyConfigPath() {
   return path.join(app.getPath("userData"), "hotkey-config.json");
+}
+
+function extractProtocolUrl(values) {
+  if (!Array.isArray(values)) {
+    return null;
+  }
+
+  return values.find((value) => typeof value === "string" && value.startsWith(`${ELECTRON_PROTOCOL}://`)) ?? null;
+}
+
+function registerProtocolClient() {
+  if (process.defaultApp && process.argv.length >= 2) {
+    app.setAsDefaultProtocolClient(ELECTRON_PROTOCOL, process.execPath, [path.resolve(process.argv[1])]);
+    return;
+  }
+
+  app.setAsDefaultProtocolClient(ELECTRON_PROTOCOL);
+}
+
+function buildElectronBrowserLoginUrl(baseUrl) {
+  const callbackUrl = new URL("/electron-auth/complete", baseUrl);
+  const signInUrl = new URL("/api/auth/signin/microsoft-entra-id", baseUrl);
+  signInUrl.searchParams.set("callbackUrl", callbackUrl.toString());
+  return signInUrl.toString();
+}
+
+function buildElectronExchangeUrl(baseUrl, handoffToken) {
+  const exchangeUrl = new URL("/electron-auth/exchange", baseUrl);
+  exchangeUrl.searchParams.set("handoff", handoffToken);
+  return exchangeUrl.toString();
 }
 
 function normalizeModifier(value) {
@@ -219,6 +252,45 @@ function handleGlobalShortcut() {
   focusSearchField();
 }
 
+function openDesktopLoginInBrowser() {
+  const runtimeConfig = getRuntimeConfig();
+
+  if (!runtimeConfig.appUrl) {
+    throw new Error("Keine Web-URL fuer die Electron-Anmeldung konfiguriert.");
+  }
+
+  return shell.openExternal(buildElectronBrowserLoginUrl(runtimeConfig.appUrl));
+}
+
+function handleProtocolUrl(url) {
+  if (!url) {
+    return;
+  }
+
+  const runtimeConfig = getRuntimeConfig();
+
+  if (!runtimeConfig.appUrl) {
+    return;
+  }
+
+  const parsedUrl = new URL(url);
+  const handoff = parsedUrl.searchParams.get("handoff")?.trim();
+
+  if (!handoff) {
+    return;
+  }
+
+  const window = createWindow();
+
+  if (window.isMinimized()) {
+    window.restore();
+  }
+
+  window.show();
+  window.focus();
+  window.loadURL(buildElectronExchangeUrl(runtimeConfig.appUrl, handoff));
+}
+
 function registerSearchShortcut(value) {
   const requestedValue = normalizeShortcut(value);
   const requestedAccelerator = toElectronAccelerator(requestedValue);
@@ -259,6 +331,7 @@ function createWindow() {
     height: 860,
     minWidth: 1100,
     minHeight: 720,
+    autoHideMenuBar: true,
     show: false,
     backgroundColor: "#f4efe7",
     title: displayName,
@@ -271,6 +344,7 @@ function createWindow() {
     mainWindow.show();
     focusSearchField();
   });
+  mainWindow.removeMenu();
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
@@ -303,19 +377,55 @@ function createWindow() {
   return mainWindow;
 }
 
-app.whenReady().then(() => {
-  createWindow();
-  currentGlobalShortcut = readStoredShortcut();
-  registerSearchShortcut(currentGlobalShortcut);
-  ipcMain.handle("search-hotkey:get", () => currentGlobalShortcut);
-  ipcMain.handle("search-hotkey:set", (_event, value) => registerSearchShortcut(value));
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on("second-instance", (_event, commandLine) => {
+    const protocolUrl = extractProtocolUrl(commandLine);
 
-  app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
+    if (protocolUrl) {
+      handleProtocolUrl(protocolUrl);
+      return;
     }
+
+    const window = createWindow();
+
+    if (window.isMinimized()) {
+      window.restore();
+    }
+
+    window.show();
+    window.focus();
   });
-});
+
+  app.on("open-url", (event, url) => {
+    event.preventDefault();
+    handleProtocolUrl(url);
+  });
+
+  app.whenReady().then(() => {
+    registerProtocolClient();
+    createWindow();
+    currentGlobalShortcut = readStoredShortcut();
+    registerSearchShortcut(currentGlobalShortcut);
+    ipcMain.handle("search-hotkey:get", () => currentGlobalShortcut);
+    ipcMain.handle("search-hotkey:set", (_event, value) => registerSearchShortcut(value));
+    ipcMain.handle("desktop-auth:start", async () => {
+      await openDesktopLoginInBrowser();
+    });
+
+    if (pendingDeepLink) {
+      handleProtocolUrl(pendingDeepLink);
+      pendingDeepLink = null;
+    }
+
+    app.on("activate", () => {
+      if (BrowserWindow.getAllWindows().length === 0) {
+        createWindow();
+      }
+    });
+  });
+}
 
 app.on("will-quit", () => {
   globalShortcut.unregisterAll();

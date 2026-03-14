@@ -135,9 +135,11 @@ npm run electron:pack -- --app-url=https://your-app.example.com
 The Electron app:
 
 - opens the web app
+- hides the native Electron menu bar
 - uses `F9` by default and lets users capture another shortcut directly in the UI
 - supports combinations such as `Ctrl+Alt+K`
 - focuses the search field when triggered
+- can start Microsoft SSO in the default browser and return to the desktop app after login
 
 ## Configuration notes
 
@@ -163,3 +165,6 @@ The Electron app:
 - PM2 restart does not pick up new settings:
   rebuild if required and use `npm run pm2:restart` so PM2 refreshes the process
   environment
+- Desktop login does not return to the Electron app:
+  make sure the packaged app was installed with the registered `plz-zuordnung://`
+  protocol handler and restart the app after the installer completes

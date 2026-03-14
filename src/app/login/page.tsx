@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { ElectronLoginButton } from "@/components/electron-login-button";
 import { getAppSession } from "@/lib/app-auth";
 import { loginWithMicrosoft } from "@/lib/auth-actions";
 import { appRuntime, authRuntime } from "@/lib/env";
@@ -59,6 +60,18 @@ function renderAuthError(error: string) {
     );
   }
 
+  if (error === "ElectronLoginExpired") {
+    return (
+      <div className="danger-card rounded-3xl border p-5">
+        <h2 className="heading-font text-xl font-semibold">Desktop-Anmeldung abgelaufen</h2>
+        <p className="mt-2 text-sm leading-6 text-[var(--danger)]">
+          Die Anmeldung im Browser war erfolgreich, aber die RÃ¼ckgabe an die Desktop-App ist
+          abgelaufen. Bitte starte die Anmeldung noch einmal aus der App.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="danger-card rounded-3xl border p-5">
       <h2 className="heading-font text-xl font-semibold">Anmeldung fehlgeschlagen</h2>
@@ -101,14 +114,17 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 Anmelden
               </Link>
             ) : (
-              <form action={loginWithMicrosoft}>
-                <button
-                  type="submit"
-                  className="w-full rounded-2xl bg-[var(--accent)] px-5 py-4 text-base font-semibold text-white shadow-sm hover:bg-[var(--accent-strong)]"
-                >
-                  Anmelden
-                </button>
-              </form>
+              <div className="space-y-3">
+                <ElectronLoginButton />
+                <form action={loginWithMicrosoft}>
+                  <button
+                    type="submit"
+                    className="w-full rounded-2xl bg-[var(--accent)] px-5 py-4 text-base font-semibold text-white shadow-sm hover:bg-[var(--accent-strong)]"
+                  >
+                    Anmelden
+                  </button>
+                </form>
+              </div>
             )
           ) : (
             <div className="danger-card rounded-3xl border p-5">
