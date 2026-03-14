@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.6 - 2026-03-14
+
+- Forced a stable page scrollbar gutter so the centered main panel no longer changes width while search results appear or disappear.
+
 ## 0.1.5 - 2026-03-14
 
 - Moved live search to an authenticated `/api/search` endpoint with in-place client updates.
