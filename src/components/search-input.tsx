@@ -7,6 +7,7 @@ import {
   matchesHotkeyEvent,
   readStoredHotkey,
 } from "@/lib/hotkey-settings";
+import { shouldSyncSearchValueFromUrl } from "@/lib/search-query-sync";
 
 type SearchInputProps = {
   defaultValue: string;
@@ -14,14 +15,31 @@ type SearchInputProps = {
 
 export function SearchInput({ defaultValue }: SearchInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const debounceTimerRef = useRef<number | null>(null);
+  const localValueRef = useRef(defaultValue);
+  const lastRequestedQueryRef = useRef(defaultValue);
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [value, setValue] = useState(defaultValue);
   const [hotkey, setHotkey] = useState(() => readStoredHotkey());
 
   useEffect(() => {
-    setValue(defaultValue);
+    if (
+      !shouldSyncSearchValueFromUrl({
+        localValue: localValueRef.current,
+        requestedQuery: lastRequestedQueryRef.current,
+        urlQuery: defaultValue,
+      })
+    ) {
+      return;
+    }
+
+    localValueRef.current = defaultValue;
+    lastRequestedQueryRef.current = defaultValue;
+
+    if (inputRef.current && inputRef.current.value !== defaultValue) {
+      inputRef.current.value = defaultValue;
+    }
   }, [defaultValue]);
 
   useEffect(() => {
@@ -60,36 +78,14 @@ export function SearchInput({ defaultValue }: SearchInputProps) {
   }, [hotkey]);
 
   useEffect(() => {
-    const nextQuery = value.trim();
-    const currentQuery = (searchParams.get("q") ?? "").trim();
-
-    if (nextQuery === currentQuery) {
-      return;
-    }
-
-    const timer = window.setTimeout(() => {
-      const params = new URLSearchParams(searchParams.toString());
-
-      if (nextQuery) {
-        params.set("q", nextQuery);
-      } else {
-        params.delete("q");
+    return () => {
+      if (debounceTimerRef.current !== null) {
+        window.clearTimeout(debounceTimerRef.current);
       }
+    };
+  }, []);
 
-      const target = params.size ? `${pathname}?${params.toString()}` : pathname;
-
-      startTransition(() => {
-        router.replace(target, { scroll: false });
-      });
-    }, 250);
-
-    return () => window.clearTimeout(timer);
-  }, [pathname, router, searchParams, value]);
-
-  function submitSearch(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    const nextQuery = value.trim();
+  function replaceSearch(nextQuery: string) {
     const params = new URLSearchParams(searchParams.toString());
 
     if (nextQuery) {
@@ -99,7 +95,45 @@ export function SearchInput({ defaultValue }: SearchInputProps) {
     }
 
     const target = params.size ? `${pathname}?${params.toString()}` : pathname;
-    router.replace(target, { scroll: false });
+    lastRequestedQueryRef.current = nextQuery;
+
+    startTransition(() => {
+      router.replace(target, { scroll: false });
+    });
+  }
+
+  function handleSearchChange(nextValue: string) {
+    localValueRef.current = nextValue;
+
+    if (debounceTimerRef.current !== null) {
+      window.clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+
+    const nextQuery = nextValue.trim();
+    const currentQuery = (searchParams.get("q") ?? "").trim();
+
+    if (nextQuery === currentQuery) {
+      return;
+    }
+
+    debounceTimerRef.current = window.setTimeout(() => {
+      replaceSearch(nextQuery);
+      debounceTimerRef.current = null;
+    }, 250);
+  }
+
+  function submitSearch(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (debounceTimerRef.current !== null) {
+      window.clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+
+    const nextValue = inputRef.current?.value ?? localValueRef.current;
+    localValueRef.current = nextValue;
+    replaceSearch(nextValue.trim());
   }
 
   return (
@@ -112,8 +146,8 @@ export function SearchInput({ defaultValue }: SearchInputProps) {
           ref={inputRef}
           id="postal-search"
           name="q"
-          value={value}
-          onChange={(event) => setValue(event.target.value)}
+          defaultValue={defaultValue}
+          onChange={(event) => handleSearchChange(event.target.value)}
           data-search-input="true"
           autoComplete="off"
           autoFocus

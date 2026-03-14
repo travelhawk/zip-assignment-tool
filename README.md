@@ -62,6 +62,34 @@ npm run lint
 npm run build
 ```
 
+## PM2
+
+Build once, then let PM2 run the production server through the committed
+ecosystem file:
+
+```bash
+npm run build
+npm run pm2:start
+```
+
+Restart an existing PM2 process after a new build with:
+
+```bash
+npm run pm2:restart
+```
+
+The committed `ecosystem.config.cjs`:
+
+- starts the built Next.js app as `plz-minitool`
+- defaults to `PORT=3000` and `HOSTNAME=0.0.0.0`
+- reads overridden `PORT`, `HOSTNAME`, and auth variables from the environment
+
+JetBrains project run configurations are included in `.run/` for:
+
+- `Build`
+- `PM2 Start`
+- `PM2 Restart`
+
 ## Usage
 
 ### Search
@@ -127,3 +155,6 @@ The Electron app:
   the account is authenticated, but no configured admin role value was found
 - No search results after setup:
   import an Excel file first
+- PM2 restart does not pick up new settings:
+  rebuild if required and use `npm run pm2:restart` so PM2 refreshes the process
+  environment
