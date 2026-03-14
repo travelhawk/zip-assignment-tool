@@ -151,6 +151,8 @@ export function DashboardSearch({
       return;
     }
 
+    setIsLoading(true);
+    setErrorMessage(null);
     searchTimerRef.current = window.setTimeout(() => {
       searchTimerRef.current = null;
       void executeSearch(normalizedQuery);

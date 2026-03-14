@@ -98,6 +98,7 @@ JetBrains project run configurations are included in `.run/` for:
 - Exact PLZ matches are preferred before prefix matches
 - Text input searches localities
 - Live search updates in place after a short debounce instead of reloading the page on every keypress
+- While a new query is loading, the previous search surface stays visible so the panel does not flicker through an empty state
 - The current query stays in the `q` URL parameter for bookmarking and sharing
 - The current data set always comes from the latest successful import
 

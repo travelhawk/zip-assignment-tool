@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.9 - 2026-03-14
+
+- Enter loading state immediately when typing so the search panel no longer flashes through the transient empty-results surface during the debounce window.
+
 ## 0.1.8 - 2026-03-14
 
 - Switched the main search panel from a translucent glass surface to a fixed solid surface so its background color stays visually constant during live updates.
