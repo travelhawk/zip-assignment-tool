@@ -37,7 +37,7 @@ export default async function DashboardPage({
 
   return (
     <main className="mx-auto w-full max-w-5xl space-y-6">
-      <section className="glass-card rounded-[2rem] p-6 md:p-8">
+      <section className="stable-card rounded-[2rem] p-6 md:p-8">
         <div className="space-y-6">
           <h1 className="heading-font text-3xl font-semibold md:text-4xl">Person suchen</h1>
 

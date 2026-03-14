@@ -66,6 +66,12 @@ input {
   backdrop-filter: blur(18px);
 }
 
+.stable-card {
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
 .kicker {
   font-family: var(--font-mono), monospace;
   letter-spacing: 0.18em;

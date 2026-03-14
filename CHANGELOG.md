@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.8 - 2026-03-14
+
+- Switched the main search panel from a translucent glass surface to a fixed solid surface so its background color stays visually constant during live updates.
+
 ## 0.1.7 - 2026-03-14
 
 - Simplified the scrollbar stabilization to a permanent vertical scrollbar without symmetric gutter padding, keeping both the panel width and background rendering consistent during live search.
