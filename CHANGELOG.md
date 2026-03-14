@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.3 - 2026-03-14
+
+- Reserved scrollbar gutter space so the main panels keep a stable horizontal size when search result blocks appear or disappear.
+
 ## 0.1.2 - 2026-03-14
 
 - Fixed the search input so late URL updates no longer remove the newest typed digit.
