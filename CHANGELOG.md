@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.7 - 2026-03-14
+
+- Simplified the scrollbar stabilization to a permanent vertical scrollbar without symmetric gutter padding, keeping both the panel width and background rendering consistent during live search.
+
 ## 0.1.6 - 2026-03-14
 
 - Forced a stable page scrollbar gutter so the centered main panel no longer changes width while search results appear or disappear.
