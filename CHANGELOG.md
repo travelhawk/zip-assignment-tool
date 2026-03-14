@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.4 - 2026-03-14
+
+- Replaced the settings icon with a more standard symmetric gear.
+
 ## 0.1.3 - 2026-03-14
 
 - Reserved scrollbar gutter space so the main panels keep a stable horizontal size when search result blocks appear or disappear.
