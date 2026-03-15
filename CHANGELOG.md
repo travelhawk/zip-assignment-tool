@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.14 - 2026-03-16
+
+- Removed the unused `APP_BASE_URL` variable from the tracked environment files.
+- Documented that `NEXTAUTH_URL` is the web app base URL and `APP_WEB_URL` is only needed for Electron packaging.
+
 ## 0.1.13 - 2026-03-15
 
 - Reworked Electron Microsoft login so the desktop app opens the real browser, then completes login inside Electron by polling the server instead of depending on the custom protocol callback.

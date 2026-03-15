@@ -28,6 +28,7 @@ Required variables:
 
 - `AUTH_METHOD=entra` or `AUTH_METHOD=basic`
 - `APP_COMPANY_NAME` for the company label in the UI
+- `NEXTAUTH_URL` for the public web app base URL, for example `http://localhost:3000`
 - `AUTH_SECRET`
 - `AUTH_MICROSOFT_ENTRA_ID_ID`
 - `AUTH_MICROSOFT_ENTRA_ID_SECRET`
@@ -131,6 +132,12 @@ Windows package:
 ```bash
 npm run electron:pack -- --app-url=https://your-app.example.com
 ```
+
+Electron URL variables:
+
+- `npm run electron:dev` already injects `APP_WEB_URL=http://localhost:3000`
+- packaged Electron builds need `APP_WEB_URL` only for the pack step, either through `--app-url=...` or the environment
+- `APP_WEB_URL` is not required in `.env.local`
 
 The Electron app:
 
