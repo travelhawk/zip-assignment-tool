@@ -3,12 +3,14 @@
 import { useEffect } from "react";
 
 type ElectronAuthCompleteProps = {
-  protocolUrl: string;
+  protocolUrl: string | null;
 };
 
 export function ElectronAuthComplete({ protocolUrl }: ElectronAuthCompleteProps) {
   useEffect(() => {
-    window.location.replace(protocolUrl);
+    if (protocolUrl) {
+      window.location.replace(protocolUrl);
+    }
   }, [protocolUrl]);
 
   return (
@@ -18,20 +20,23 @@ export function ElectronAuthComplete({ protocolUrl }: ElectronAuthCompleteProps)
           <div className="space-y-3">
             <p className="kicker text-sm muted">Desktop-Anmeldung</p>
             <h1 className="heading-font text-4xl font-semibold leading-tight">
-              Zur App zurückkehren
+              Zur App zurueckkehren
             </h1>
             <p className="muted text-base leading-7">
-              Die Anmeldung war erfolgreich. Falls die Desktop-App nicht automatisch öffnet,
-              verwende den Button unten.
+              Die Anmeldung war erfolgreich. Die Desktop-App setzt den Login jetzt
+              selbst fort. Falls sie sich nicht automatisch aktualisiert, wechsle
+              zur App zurueck.
             </p>
           </div>
 
-          <a
-            href={protocolUrl}
-            className="inline-flex w-full items-center justify-center rounded-2xl bg-[var(--accent)] px-5 py-4 text-base font-semibold text-white shadow-sm hover:bg-[var(--accent-strong)]"
-          >
-            Desktop-App öffnen
-          </a>
+          {protocolUrl ? (
+            <a
+              href={protocolUrl}
+              className="inline-flex w-full items-center justify-center rounded-2xl bg-[var(--accent)] px-5 py-4 text-base font-semibold text-white shadow-sm hover:bg-[var(--accent-strong)]"
+            >
+              Desktop-App oeffnen
+            </a>
+          ) : null}
         </section>
       </div>
     </main>

@@ -2,9 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   buildElectronBrowserLoginUrl,
+  buildElectronPollUrl,
   buildElectronProtocolUrl,
-  consumeElectronHandoff,
-  createElectronHandoff,
   createElectronSessionToken,
   readElectronSessionToken,
 } from "./electron-auth.ts";
@@ -42,32 +41,23 @@ test("electron session tokens reject tampering", () => {
   assert.equal(readElectronSessionToken(`${token}tampered`, secret), null);
 });
 
-test("electron handoff tokens can only be consumed once", () => {
-  const handoff = createElectronHandoff({
-    email: "test@example.com",
-    isAdmin: false,
-    name: "Test User",
-  });
-
-  assert.deepEqual(consumeElectronHandoff(handoff), {
-    authMethod: "entra",
-    email: "test@example.com",
-    isAdmin: false,
-    name: "Test User",
-  });
-  assert.equal(consumeElectronHandoff(handoff), null);
-});
-
-test("electron browser login url points back to the desktop completion page", () => {
+test("electron browser login url includes the request id", () => {
   assert.equal(
-    buildElectronBrowserLoginUrl("https://plz.example.com"),
-    "https://plz.example.com/electron-auth/start",
+    buildElectronBrowserLoginUrl("https://plz.example.com", "req123"),
+    "https://plz.example.com/electron-auth/start?request=req123",
   );
 });
 
-test("electron protocol url carries the handoff token", () => {
+test("electron poll url includes the request id", () => {
   assert.equal(
-    buildElectronProtocolUrl("abc123"),
-    "plz-zuordnung://auth/callback?handoff=abc123",
+    buildElectronPollUrl("https://plz.example.com", "req123"),
+    "https://plz.example.com/electron-auth/poll?request=req123",
+  );
+});
+
+test("electron protocol url carries the request id", () => {
+  assert.equal(
+    buildElectronProtocolUrl("req123"),
+    "plz-zuordnung://auth/callback?request=req123",
   );
 });

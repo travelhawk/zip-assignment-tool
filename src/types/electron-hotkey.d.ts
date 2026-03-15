@@ -3,7 +3,7 @@ export {};
 declare global {
   interface Window {
     electronDesktop?: {
-      startMicrosoftLogin: () => Promise<void>;
+      startMicrosoftLogin: (url: string) => Promise<void>;
     };
     electronHotkey?: {
       get: () => Promise<string>;

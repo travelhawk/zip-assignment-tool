@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.13 - 2026-03-15
+
+- Reworked Electron Microsoft login so the desktop app opens the real browser, then completes login inside Electron by polling the server instead of depending on the custom protocol callback.
+- Persisted pending Electron login requests in SQLite so the browser handoff survives `next dev` recompiles and matches production behavior.
+- Aligned Electron development URLs to `http://localhost:3000` to avoid cross-origin failures between `localhost` and `127.0.0.1`.
+
 ## 0.1.11 - 2026-03-15
 
 - Fixed the Electron browser-based Microsoft login by starting the OAuth flow through `/electron-auth/start` instead of calling the raw provider sign-in URL directly.

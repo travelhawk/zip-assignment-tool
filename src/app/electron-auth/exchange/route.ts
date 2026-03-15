@@ -1,18 +1,16 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import {
-  consumeElectronHandoff,
-  createElectronSessionToken,
   ELECTRON_SESSION_COOKIE,
   getElectronSessionCookieOptions,
 } from "@/lib/electron-auth";
-import { authRuntime } from "@/lib/env";
+import { consumeElectronLoginRequest } from "@/lib/electron-login-requests";
 
 export async function GET(request: NextRequest) {
-  const handoff = request.nextUrl.searchParams.get("handoff")?.trim() ?? "";
-  const user = consumeElectronHandoff(handoff);
+  const requestId = request.nextUrl.searchParams.get("request")?.trim() ?? "";
+  const sessionToken = consumeElectronLoginRequest(requestId);
 
-  if (!user) {
+  if (!sessionToken) {
     const targetUrl = new URL("/login?error=ElectronLoginExpired", request.url);
     return NextResponse.redirect(targetUrl);
   }
@@ -20,7 +18,7 @@ export async function GET(request: NextRequest) {
   const response = NextResponse.redirect(new URL("/", request.url));
   response.cookies.set(
     ELECTRON_SESSION_COOKIE,
-    createElectronSessionToken(user, authRuntime.authSecret),
+    sessionToken,
     getElectronSessionCookieOptions(request.nextUrl.protocol === "https:"),
   );
   return response;

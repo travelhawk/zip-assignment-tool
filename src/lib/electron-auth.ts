@@ -1,11 +1,9 @@
-import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 
 export const ELECTRON_PROTOCOL = "plz-zuordnung";
 export const ELECTRON_SESSION_COOKIE = "plz_electron_session";
 
 const ELECTRON_SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
-const ELECTRON_HANDOFF_TTL_MS = 1000 * 60 * 5;
-
 type ElectronSessionPayload = {
   authMethod: "entra";
   email: string | null;
@@ -21,13 +19,6 @@ export type ElectronSessionUser = {
   isAdmin: boolean;
   name: string | null;
 };
-
-type ElectronHandoffRecord = {
-  expiresAt: number;
-  user: ElectronSessionUser;
-};
-
-const electronHandoffStore = new Map<string, ElectronHandoffRecord>();
 
 function encodeBase64Url(value: string) {
   return Buffer.from(value, "utf8").toString("base64url");
@@ -45,14 +36,6 @@ function buildSignedToken(payload: ElectronSessionPayload, secret: string) {
   const encodedPayload = encodeBase64Url(JSON.stringify(payload));
   const signature = signValue(encodedPayload, secret);
   return `${encodedPayload}.${signature}`;
-}
-
-function cleanupExpiredHandoffs(now = Date.now()) {
-  for (const [token, record] of electronHandoffStore.entries()) {
-    if (record.expiresAt <= now) {
-      electronHandoffStore.delete(token);
-    }
-  }
 }
 
 export function createElectronSessionToken(
@@ -120,41 +103,6 @@ export function readElectronSessionToken(token: string | null | undefined, secre
   }
 }
 
-export function createElectronHandoff(user: Omit<ElectronSessionUser, "authMethod">) {
-  cleanupExpiredHandoffs();
-
-  const token = randomBytes(32).toString("base64url");
-
-  electronHandoffStore.set(token, {
-    user: {
-      authMethod: "entra",
-      email: user.email,
-      isAdmin: user.isAdmin,
-      name: user.name,
-    },
-    expiresAt: Date.now() + ELECTRON_HANDOFF_TTL_MS,
-  });
-
-  return token;
-}
-
-export function consumeElectronHandoff(token: string | null | undefined) {
-  cleanupExpiredHandoffs();
-
-  if (!token) {
-    return null;
-  }
-
-  const record = electronHandoffStore.get(token);
-
-  if (!record) {
-    return null;
-  }
-
-  electronHandoffStore.delete(token);
-  return record.user;
-}
-
 export function getElectronSessionCookieOptions(secure: boolean) {
   return {
     httpOnly: true,
@@ -165,18 +113,30 @@ export function getElectronSessionCookieOptions(secure: boolean) {
   };
 }
 
-export function buildElectronBrowserLoginUrl(baseUrl: string) {
-  return new URL("/electron-auth/start", baseUrl).toString();
+export function buildElectronBrowserLoginUrl(baseUrl: string, requestId: string) {
+  const startUrl = new URL("/electron-auth/start", baseUrl);
+  startUrl.searchParams.set("request", requestId);
+  return startUrl.toString();
 }
 
-export function buildElectronExchangeUrl(baseUrl: string, handoffToken: string) {
+export function buildElectronExchangeUrl(baseUrl: string, requestId: string) {
   const exchangeUrl = new URL("/electron-auth/exchange", baseUrl);
-  exchangeUrl.searchParams.set("handoff", handoffToken);
+  exchangeUrl.searchParams.set("request", requestId);
   return exchangeUrl.toString();
 }
 
-export function buildElectronProtocolUrl(handoffToken: string) {
+export function buildElectronPollUrl(baseUrl: string, requestId: string) {
+  const pollUrl = new URL("/electron-auth/poll", baseUrl);
+  pollUrl.searchParams.set("request", requestId);
+  return pollUrl.toString();
+}
+
+export function buildElectronRequestUrl(baseUrl: string) {
+  return new URL("/electron-auth/request", baseUrl).toString();
+}
+
+export function buildElectronProtocolUrl(requestId: string) {
   const protocolUrl = new URL(`${ELECTRON_PROTOCOL}://auth/callback`);
-  protocolUrl.searchParams.set("handoff", handoffToken);
+  protocolUrl.searchParams.set("request", requestId);
   return protocolUrl.toString();
 }

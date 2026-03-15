@@ -21,6 +21,7 @@ declare global {
 
 const referenceFilePath = path.join(process.cwd(), "data", "reference", "DE.txt");
 const POSTAL_REFERENCE_SEED_VERSION = "2026-03-14-utf8-v4";
+const DATABASE_READY_VERSION = `${POSTAL_REFERENCE_SEED_VERSION}|2026-03-15-electron-login-v1`;
 
 function openDatabase() {
   mkdirSync(path.dirname(authRuntime.dbPath), { recursive: true });
@@ -160,6 +161,12 @@ function initializeDatabase(db: DatabaseSync) {
       value TEXT NOT NULL
     );
 
+    CREATE TABLE IF NOT EXISTS electron_login_requests (
+      request_id TEXT PRIMARY KEY,
+      session_token TEXT,
+      expires_at INTEGER NOT NULL
+    );
+
     CREATE TABLE IF NOT EXISTS postal_reference (
       postal_code TEXT NOT NULL,
       locality TEXT NOT NULL,
@@ -190,11 +197,11 @@ export function getDatabase() {
 
   if (
     !globalThis.__plzMiniToolDbReady ||
-    globalThis.__plzMiniToolDbReadyVersion !== POSTAL_REFERENCE_SEED_VERSION
+    globalThis.__plzMiniToolDbReadyVersion !== DATABASE_READY_VERSION
   ) {
     initializeDatabase(globalThis.__plzMiniToolDb);
     globalThis.__plzMiniToolDbReady = true;
-    globalThis.__plzMiniToolDbReadyVersion = POSTAL_REFERENCE_SEED_VERSION;
+    globalThis.__plzMiniToolDbReadyVersion = DATABASE_READY_VERSION;
   }
 
   return globalThis.__plzMiniToolDb;

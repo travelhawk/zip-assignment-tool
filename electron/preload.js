@@ -7,5 +7,5 @@ contextBridge.exposeInMainWorld("electronHotkey", {
 });
 
 contextBridge.exposeInMainWorld("electronDesktop", {
-  startMicrosoftLogin: () => ipcRenderer.invoke("desktop-auth:start"),
+  startMicrosoftLogin: (url) => ipcRenderer.invoke("desktop-auth:start", url),
 });

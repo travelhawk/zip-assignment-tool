@@ -26,7 +26,7 @@ function formatDisplayName(companyName) {
 
 function getRuntimeConfig() {
   const fallback = {
-    appUrl: process.env.APP_WEB_URL || "http://127.0.0.1:3000",
+    appUrl: process.env.APP_WEB_URL || "http://localhost:3000",
     companyName: process.env.APP_COMPANY_NAME || "",
   };
 
@@ -79,16 +79,9 @@ function registerProtocolClient() {
   app.setAsDefaultProtocolClient(ELECTRON_PROTOCOL);
 }
 
-function buildElectronBrowserLoginUrl(baseUrl) {
-  const callbackUrl = new URL("/electron-auth/complete", baseUrl);
-  const signInUrl = new URL("/api/auth/signin/microsoft-entra-id", baseUrl);
-  signInUrl.searchParams.set("callbackUrl", callbackUrl.toString());
-  return signInUrl.toString();
-}
-
-function buildElectronExchangeUrl(baseUrl, handoffToken) {
+function buildElectronExchangeUrl(baseUrl, requestId) {
   const exchangeUrl = new URL("/electron-auth/exchange", baseUrl);
-  exchangeUrl.searchParams.set("handoff", handoffToken);
+  exchangeUrl.searchParams.set("request", requestId);
   return exchangeUrl.toString();
 }
 
@@ -252,14 +245,12 @@ function handleGlobalShortcut() {
   focusSearchField();
 }
 
-function openDesktopLoginInBrowser() {
-  const runtimeConfig = getRuntimeConfig();
-
-  if (!runtimeConfig.appUrl) {
-    throw new Error("Keine Web-URL fuer die Electron-Anmeldung konfiguriert.");
+function openDesktopLoginInBrowser(startUrl) {
+  if (typeof startUrl !== "string" || !startUrl.trim()) {
+    throw new Error("Keine Browser-URL fuer die Electron-Anmeldung erhalten.");
   }
 
-  return shell.openExternal(buildElectronBrowserLoginUrl(runtimeConfig.appUrl));
+  return shell.openExternal(startUrl);
 }
 
 function handleProtocolUrl(url) {
@@ -274,9 +265,9 @@ function handleProtocolUrl(url) {
   }
 
   const parsedUrl = new URL(url);
-  const handoff = parsedUrl.searchParams.get("handoff")?.trim();
+  const requestId = parsedUrl.searchParams.get("request")?.trim();
 
-  if (!handoff) {
+  if (!requestId) {
     return;
   }
 
@@ -288,7 +279,7 @@ function handleProtocolUrl(url) {
 
   window.show();
   window.focus();
-  window.loadURL(buildElectronExchangeUrl(runtimeConfig.appUrl, handoff));
+  window.loadURL(buildElectronExchangeUrl(runtimeConfig.appUrl, requestId));
 }
 
 function registerSearchShortcut(value) {
@@ -410,8 +401,8 @@ if (!gotTheLock) {
     registerSearchShortcut(currentGlobalShortcut);
     ipcMain.handle("search-hotkey:get", () => currentGlobalShortcut);
     ipcMain.handle("search-hotkey:set", (_event, value) => registerSearchShortcut(value));
-    ipcMain.handle("desktop-auth:start", async () => {
-      await openDesktopLoginInBrowser();
+    ipcMain.handle("desktop-auth:start", async (_event, startUrl) => {
+      await openDesktopLoginInBrowser(startUrl);
     });
 
     if (pendingDeepLink) {

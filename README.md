@@ -139,8 +139,9 @@ The Electron app:
 - uses `F9` by default and lets users capture another shortcut directly in the UI
 - supports combinations such as `Ctrl+Alt+K`
 - focuses the search field when triggered
-- can start Microsoft SSO in the default browser and return to the desktop app after login
+- can start Microsoft SSO in the default browser and finish the desktop login inside Electron after the browser flow succeeds
 - starts the desktop browser login through the app's own auth route so the web login flow stays compatible
+- keeps pending desktop login requests in SQLite so development reloads do not break the browser handoff
 
 ## Configuration notes
 
@@ -167,5 +168,6 @@ The Electron app:
   rebuild if required and use `npm run pm2:restart` so PM2 refreshes the process
   environment
 - Desktop login does not return to the Electron app:
-  make sure the packaged app was installed with the registered `plz-zuordnung://`
-  protocol handler and restart the app after the installer completes
+  finish the Microsoft login in the real browser first; Electron now continues by
+  polling the server, so the custom `plz-zuordnung://` callback is optional rather
+  than required
