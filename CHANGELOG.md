@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.11 - 2026-03-15
+
+- Fixed the Electron browser-based Microsoft login by starting the OAuth flow through `/electron-auth/start` instead of calling the raw provider sign-in URL directly.
+
 ## 0.1.10 - 2026-03-15
 
 - Removed the Electron window menu bar.

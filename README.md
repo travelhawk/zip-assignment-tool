@@ -140,6 +140,7 @@ The Electron app:
 - supports combinations such as `Ctrl+Alt+K`
 - focuses the search field when triggered
 - can start Microsoft SSO in the default browser and return to the desktop app after login
+- starts the desktop browser login through the app's own auth route so the web login flow stays compatible
 
 ## Configuration notes
 

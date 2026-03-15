@@ -166,10 +166,7 @@ export function getElectronSessionCookieOptions(secure: boolean) {
 }
 
 export function buildElectronBrowserLoginUrl(baseUrl: string) {
-  const callbackUrl = new URL("/electron-auth/complete", baseUrl);
-  const signInUrl = new URL("/api/auth/signin/microsoft-entra-id", baseUrl);
-  signInUrl.searchParams.set("callbackUrl", callbackUrl.toString());
-  return signInUrl.toString();
+  return new URL("/electron-auth/start", baseUrl).toString();
 }
 
 export function buildElectronExchangeUrl(baseUrl: string, handoffToken: string) {

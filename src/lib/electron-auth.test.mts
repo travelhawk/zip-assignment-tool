@@ -61,7 +61,7 @@ test("electron handoff tokens can only be consumed once", () => {
 test("electron browser login url points back to the desktop completion page", () => {
   assert.equal(
     buildElectronBrowserLoginUrl("https://plz.example.com"),
-    "https://plz.example.com/api/auth/signin/microsoft-entra-id?callbackUrl=https%3A%2F%2Fplz.example.com%2Felectron-auth%2Fcomplete",
+    "https://plz.example.com/electron-auth/start",
   );
 });
 
