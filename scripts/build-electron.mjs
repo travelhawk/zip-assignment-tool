@@ -1,6 +1,10 @@
 import { spawnSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import nextEnv from "@next/env";
+
+const { loadEnvConfig } = nextEnv;
+loadEnvConfig(process.cwd());
 
 function readAppUrlFromArgs() {
   const explicitArg = process.argv.find((value) => value.startsWith("--app-url="));
@@ -39,8 +43,8 @@ writeFileSync(
   JSON.stringify({ appUrl: normalizedUrl, companyName }, null, 2),
 );
 
-const command = process.platform === "win32" ? "npx.cmd" : "npx";
-const result = spawnSync(command, ["electron-builder"], {
+const result = spawnSync("npx electron-builder", {
+  shell: true,
   stdio: "inherit",
 });
 

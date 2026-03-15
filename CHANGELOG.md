@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.15 - 2026-03-16
+
+- Fixed `npm run electron:pack` so it loads `.env.local` before reading `APP_WEB_URL` and `APP_COMPANY_NAME`.
+- Added `APP_WEB_URL` to the example environment so the Electron packaging URL is visible alongside the web URL settings.
+
 ## 0.1.14 - 2026-03-16
 
 - Removed the unused `APP_BASE_URL` variable from the tracked environment files.

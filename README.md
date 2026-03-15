@@ -136,8 +136,9 @@ npm run electron:pack -- --app-url=https://your-app.example.com
 Electron URL variables:
 
 - `npm run electron:dev` already injects `APP_WEB_URL=http://localhost:3000`
-- packaged Electron builds need `APP_WEB_URL` only for the pack step, either through `--app-url=...` or the environment
-- `APP_WEB_URL` is not required in `.env.local`
+- `npm run electron:pack` now loads `.env.local`, so `APP_WEB_URL` can come from there
+- packaged Electron builds need `APP_WEB_URL` only for the pack step, either through `.env.local`, `--app-url=...`, or the environment
+- `APP_WEB_URL` is optional unless you build the Electron package
 
 The Electron app:
 
