@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.16 - 2026-03-17
+
+- Fixed the Electron-only login button so it appears after hydration when the app loads a remote web deployment inside Electron.
+- Documented that missing the external-browser button in Electron means the deployed web bundle also needs the updated client code.
+
 ## 0.1.15 - 2026-03-16
 
 - Fixed `npm run electron:pack` so it loads `.env.local` before reading `APP_WEB_URL` and `APP_COMPANY_NAME`.

@@ -179,3 +179,7 @@ The Electron app:
   finish the Microsoft login in the real browser first; Electron now continues by
   polling the server, so the custom `plz-zuordnung://` callback is optional rather
   than required
+- The Electron app shows only the normal web login button:
+  update the deployed web app as well as the Electron shell; the Electron-only
+  browser login button is added on the client after hydration and will stay hidden
+  if the deployed web bundle is still on the older code

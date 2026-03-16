@@ -13,8 +13,18 @@ type ElectronLoginPollPayload = {
   status: "complete" | "expired" | "pending";
 };
 
-function subscribe() {
-  return () => {};
+function subscribe(callback: () => void) {
+  if (typeof window === "undefined") {
+    return () => {};
+  }
+
+  const frameId = window.requestAnimationFrame(() => {
+    callback();
+  });
+
+  return () => {
+    window.cancelAnimationFrame(frameId);
+  };
 }
 
 function getClientSnapshot() {
