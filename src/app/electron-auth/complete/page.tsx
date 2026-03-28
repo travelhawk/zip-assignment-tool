@@ -36,6 +36,7 @@ export default async function ElectronAuthCompletePage({
       {
         email: session.user.email,
         isAdmin: session.user.isAdmin,
+        isSuperAdmin: session.user.isSuperAdmin,
         name: session.user.name,
       },
       authRuntime.authSecret,

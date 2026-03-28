@@ -9,6 +9,7 @@ type ElectronSessionPayload = {
   email: string | null;
   exp: number;
   isAdmin: boolean;
+  isSuperAdmin: boolean;
   name: string | null;
   type: "electron-session";
 };
@@ -17,6 +18,7 @@ export type ElectronSessionUser = {
   authMethod: "entra";
   email: string | null;
   isAdmin: boolean;
+  isSuperAdmin: boolean;
   name: string | null;
 };
 
@@ -49,6 +51,7 @@ export function createElectronSessionToken(
     email: user.email,
     name: user.name,
     isAdmin: user.isAdmin,
+    isSuperAdmin: user.isSuperAdmin,
     exp: now + ELECTRON_SESSION_TTL_SECONDS * 1000,
   };
 
@@ -86,6 +89,7 @@ export function readElectronSessionToken(token: string | null | undefined, secre
       payload.type !== "electron-session" ||
       payload.authMethod !== "entra" ||
       typeof payload.isAdmin !== "boolean" ||
+      typeof payload.isSuperAdmin !== "boolean" ||
       typeof payload.exp !== "number" ||
       payload.exp <= Date.now()
     ) {
@@ -96,6 +100,7 @@ export function readElectronSessionToken(token: string | null | undefined, secre
       authMethod: "entra",
       email: typeof payload.email === "string" ? payload.email : null,
       isAdmin: payload.isAdmin,
+      isSuperAdmin: payload.isSuperAdmin,
       name: typeof payload.name === "string" ? payload.name : null,
     } satisfies ElectronSessionUser;
   } catch {

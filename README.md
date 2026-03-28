@@ -7,18 +7,20 @@ postal code or locality.
 
 - Sign in with Microsoft Entra ID or Basic Auth
 - Search by PLZ or locality for all signed-in users
-- Show the import UI only to admins with the Entra app role value `Assignment.Import`
+- Show the import UI to users with the Entra app role values `Admin` or `SuperAdmin`
 - Replace assignment data through Excel import
 - Store application data in SQLite
+- Track usage analytics in SQLite and show a dashboard to super admins
 - Optional Electron wrapper with a configurable search hotkey such as `F9` or `Ctrl+Alt+K`
 
 ## Access model
 
 - Normal users: search only
 - Admin users: search plus import
+- SuperAdmin users: search, import, and analytics dashboard
 - Entra admin detection is based on the token `roles` claim containing the app role value
-- Default accepted admin role values are `Assignment.Import` and `Admin`
-- Basic Auth remains a local fallback mode with import access enabled
+- Default accepted admin role values are `Admin` for import and `SuperAdmin` for import plus analytics
+- Basic Auth remains a local fallback mode with import and analytics access enabled
 
 ## Setup
 
@@ -34,13 +36,16 @@ Required variables:
 - `AUTH_MICROSOFT_ENTRA_ID_SECRET`
 - `AUTH_MICROSOFT_ENTRA_ID_TENANT_ID`
 - `AUTH_MICROSOFT_ENTRA_ID_ADMIN_ROLE_VALUES`
+- `AUTH_MICROSOFT_ENTRA_ID_SUPER_ADMIN_ROLE_VALUES`
 - `BASIC_AUTH_PASSWORD` when `AUTH_METHOD=basic`
 
 Entra requirements:
 
 - Create or reuse an Entra application registration
-- Add an app role with a suitable value such as `Assignment.Import`
-- Assign that role to users who should be allowed to import
+- Add an app role with the value `Admin` for import access
+- Add an app role with the value `SuperAdmin` for analytics access
+- Assign `Admin` to users who should be allowed to import
+- Assign `SuperAdmin` to users who should be allowed to import and view analytics
 - Make sure the signed-in token contains the `roles` claim
 - The app checks the role `Value`, not the display name shown in the Entra portal
 - Configure the local redirect URI:
@@ -110,7 +115,7 @@ Example searches:
 
 ### Import
 
-- Only available to admins with a matching Entra role value such as `Assignment.Import`
+- Available to users with a matching Entra role value such as `Admin` or `SuperAdmin`
 - Accepts `.xlsx` and `.xlsm`
 - Automatically selects the most suitable worksheet
 - Header rows are allowed
@@ -118,6 +123,13 @@ Example searches:
 - Column B must contain the responsible person
 - A new import replaces all existing assignments
 - For duplicate PLZ entries, the last row wins
+
+### Analytics
+
+- Only available to users with the Entra role value `SuperAdmin`
+- Tracks unique users, recent activity, page views, searches, and imports
+- Stores usage metrics in the same SQLite database as the rest of the app
+- Super admins can open the dashboard through the header navigation
 
 ## Electron
 
@@ -165,9 +177,12 @@ The Electron app:
   `AUTH_MICROSOFT_ENTRA_ID_SECRET` contains the secret value, not the secret ID
 - Import link does not appear:
   confirm the signed-in Entra token includes the app role value, for example
-  `Assignment.Import`, in the `roles` claim
+  `Admin`, in the `roles` claim
 - User can search but cannot import:
   the account is authenticated, but no configured admin role value was found
+- Analytics link does not appear:
+  confirm the signed-in Entra token includes the `SuperAdmin` role value in the `roles`
+  claim
 - No search results after setup:
   import an Excel file first
 - Search suddenly redirects to login:

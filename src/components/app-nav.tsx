@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 type AppNavProps = {
   isAdmin: boolean;
+  isSuperAdmin: boolean;
 };
 
 function linkClass() {
@@ -14,20 +15,28 @@ function linkClass() {
   ].join(" ");
 }
 
-export function AppNav({ isAdmin }: AppNavProps) {
+export function AppNav({ isAdmin, isSuperAdmin }: AppNavProps) {
   const pathname = usePathname();
 
-  if (!isAdmin) {
+  const links = [
+    pathname === "/" ? null : { href: "/", label: "Zur Suche" },
+    isAdmin && pathname !== "/admin" ? { href: "/admin", label: "Import" } : null,
+    isSuperAdmin && pathname !== "/analytics"
+      ? { href: "/analytics", label: "Analytics" }
+      : null,
+  ].filter((link): link is { href: string; label: string } => Boolean(link));
+
+  if (links.length === 0) {
     return null;
   }
 
-  return pathname === "/admin" ? (
-    <Link href="/" className={linkClass()}>
-      Zur Suche
-    </Link>
-  ) : (
-    <Link href="/admin" className={linkClass()}>
-      Import
-    </Link>
+  return (
+    <div className="flex flex-wrap items-center gap-3">
+      {links.map((link) => (
+        <Link key={link.href} href={link.href} className={linkClass()}>
+          {link.label}
+        </Link>
+      ))}
+    </div>
   );
 }

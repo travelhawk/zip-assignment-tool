@@ -1,7 +1,8 @@
 export const DEFAULT_ADMIN_ENTRA_ROLE_VALUES = [
-  "Assignment.Import",
   "Admin",
 ] as const;
+
+export const DEFAULT_SUPER_ADMIN_ENTRA_ROLE_VALUES = ["SuperAdmin"] as const;
 
 function normalizeRoleName(value: unknown) {
   if (typeof value !== "string") {
@@ -68,4 +69,24 @@ export function isAdminEntraUser(
   adminRoleValues: readonly string[] = DEFAULT_ADMIN_ENTRA_ROLE_VALUES,
 ) {
   return hasAnyEntraRole(source, adminRoleValues);
+}
+
+export function isSuperAdminEntraUser(
+  source: unknown,
+  superAdminRoleValues: readonly string[] = DEFAULT_SUPER_ADMIN_ENTRA_ROLE_VALUES,
+) {
+  return hasAnyEntraRole(source, superAdminRoleValues);
+}
+
+export function resolveEntraAccess(
+  source: unknown,
+  adminRoleValues: readonly string[] = DEFAULT_ADMIN_ENTRA_ROLE_VALUES,
+  superAdminRoleValues: readonly string[] = DEFAULT_SUPER_ADMIN_ENTRA_ROLE_VALUES,
+) {
+  const isSuperAdmin = isSuperAdminEntraUser(source, superAdminRoleValues);
+
+  return {
+    isAdmin: isSuperAdmin || isAdminEntraUser(source, adminRoleValues),
+    isSuperAdmin,
+  };
 }

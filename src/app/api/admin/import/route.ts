@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAppSession } from "@/lib/app-auth";
+import { recordImport } from "@/lib/analytics";
+import { getDatabase } from "@/lib/db";
 import { replaceAssignmentsFromWorkbook } from "@/lib/repository";
 
 function redirectWithMessage(
@@ -45,6 +47,7 @@ export async function POST(request: Request) {
     }
 
     const result = await replaceAssignmentsFromWorkbook(file, importedBy);
+    recordImport(session.user, getDatabase());
 
     return redirectWithMessage(base, "success", {
       count: String(result.insertedCount),

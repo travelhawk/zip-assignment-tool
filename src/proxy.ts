@@ -15,7 +15,13 @@ function isProtectedPath(pathname: string) {
     return false;
   }
 
-  return pathname === "/" || pathname.startsWith("/admin") || pathname.startsWith("/api/admin");
+  return (
+    pathname === "/" ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/analytics") ||
+    pathname.startsWith("/api/admin") ||
+    pathname.startsWith("/api/analytics")
+  );
 }
 
 export function proxy(request: NextRequest) {

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.17 - 2026-03-28
+
+- Changed the default Entra import role value from `Assignment.Import` to `Admin`.
+- Added a dedicated `SuperAdmin` role with access to a new SQLite-backed analytics dashboard.
+- Started tracking protected-page usage, searches, and imports so super admins can see actual tool adoption.
+
 ## 0.1.16 - 2026-03-17
 
 - Fixed the Electron-only login button so it appears after hydration when the app loads a remote web deployment inside Electron.

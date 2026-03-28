@@ -16,6 +16,7 @@ export type AppSession = {
   user: {
     email: string | null;
     isAdmin: boolean;
+    isSuperAdmin: boolean;
     name: string | null;
     authMethod: "entra" | "basic";
   };
@@ -40,6 +41,7 @@ export async function getAppSession() {
       user: {
         email: authRuntime.basicAuth.email,
         isAdmin: true,
+        isSuperAdmin: true,
         name: authRuntime.basicAuth.displayName,
         authMethod: "basic",
       },
@@ -68,6 +70,7 @@ export async function getAppSession() {
     user: {
       email: session.user.email ?? null,
       isAdmin: session.user.isAdmin,
+      isSuperAdmin: session.user.isSuperAdmin,
       name: session.user.name ?? null,
       authMethod: "entra",
     },

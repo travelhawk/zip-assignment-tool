@@ -54,10 +54,11 @@ export const authRuntime = {
   issuer: tenantId
     ? `https://login.microsoftonline.com/${tenantId}/v2.0`
     : "https://login.microsoftonline.com/common/v2.0",
-  adminEntraRoleValues: readListEnv("AUTH_MICROSOFT_ENTRA_ID_ADMIN_ROLE_VALUES", [
-    "Assignment.Import",
-    "Admin",
-  ]),
+  adminEntraRoleValues: readListEnv("AUTH_MICROSOFT_ENTRA_ID_ADMIN_ROLE_VALUES", ["Admin"]),
+  superAdminEntraRoleValues: readListEnv(
+    "AUTH_MICROSOFT_ENTRA_ID_SUPER_ADMIN_ROLE_VALUES",
+    ["SuperAdmin"],
+  ),
   basicAuth: {
     username: basicAuthUsername,
     password: readEnv("BASIC_AUTH_PASSWORD"),

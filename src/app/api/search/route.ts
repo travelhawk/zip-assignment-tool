@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAppSession } from "@/lib/app-auth";
+import { recordSearch } from "@/lib/analytics";
+import { getDatabase } from "@/lib/db";
 import { searchAssignments } from "@/lib/repository";
 import { normalizeSearchQuery } from "@/lib/search-url-state";
 
@@ -15,6 +17,8 @@ export async function GET(request: Request) {
   if (!query) {
     return NextResponse.json({ error: "Bitte einen Suchbegriff angeben." }, { status: 400 });
   }
+
+  recordSearch(session.user, getDatabase());
 
   return NextResponse.json(searchAssignments(query), {
     headers: {

@@ -2,6 +2,7 @@ import "server-only";
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
+import { initializeAnalyticsSchema } from "@/lib/analytics";
 import { authRuntime } from "@/lib/env";
 import { normalizeLocalityLoose, normalizeLocalityStrict } from "@/lib/normalization";
 
@@ -187,6 +188,7 @@ function initializeDatabase(db: DatabaseSync) {
       ON postal_reference (normalized_locality_loose);
   `);
 
+  initializeAnalyticsSchema(db);
   seedPostalReference(db);
 }
 

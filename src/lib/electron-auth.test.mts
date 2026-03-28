@@ -14,6 +14,7 @@ test("electron session tokens round-trip valid user data", () => {
     {
       email: "test@example.com",
       isAdmin: true,
+      isSuperAdmin: true,
       name: "Test User",
     },
     secret,
@@ -23,6 +24,7 @@ test("electron session tokens round-trip valid user data", () => {
     authMethod: "entra",
     email: "test@example.com",
     isAdmin: true,
+    isSuperAdmin: true,
     name: "Test User",
   });
 });
@@ -33,6 +35,7 @@ test("electron session tokens reject tampering", () => {
     {
       email: "test@example.com",
       isAdmin: false,
+      isSuperAdmin: false,
       name: "Test User",
     },
     secret,

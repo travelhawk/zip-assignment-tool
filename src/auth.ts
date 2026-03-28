@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
 import { authRuntime } from "@/lib/env";
-import { extractEntraRoles, isAdminEntraUser } from "@/lib/entra-roles";
+import { extractEntraRoles, resolveEntraAccess } from "@/lib/entra-roles";
 
 function readProfileValue(profile: unknown, key: string) {
   if (!profile || typeof profile !== "object") {
@@ -68,6 +68,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       const email = resolveEmail(profile, token.email);
       const name = resolveName(profile, token.name);
       const roles = extractEntraRoles(profile ?? token.roles);
+      const access = resolveEntraAccess(
+        roles,
+        authRuntime.adminEntraRoleValues,
+        authRuntime.superAdminEntraRoleValues,
+      );
 
       if (email) {
         token.email = email;
@@ -78,7 +83,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
 
       token.roles = roles;
-      token.isAdmin = isAdminEntraUser(roles, authRuntime.adminEntraRoleValues);
+      token.isAdmin = access.isAdmin;
+      token.isSuperAdmin = access.isSuperAdmin;
       return token;
     },
     async session({ session, token }) {
@@ -88,6 +94,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.name =
           typeof token.name === "string" ? token.name : session.user.name ?? null;
         session.user.isAdmin = Boolean(token.isAdmin);
+        session.user.isSuperAdmin = Boolean(token.isSuperAdmin);
       }
 
       return session;
